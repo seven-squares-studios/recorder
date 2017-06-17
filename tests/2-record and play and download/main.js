@@ -7,7 +7,9 @@ var stream,
     stopBtn = document.getElementById('stop'),
     state = document.getElementById('state'),
     audioFile,
-    audioElement = document.getElementById('audio');
+    audioElement = document.getElementById('audio'),
+    audioLink,
+    downloadElement = document.getElementById('download');
 /* Notes: I placed the sream var in the global scope because I want to be able to use it wherever I want. */
 
 recordBtn.onclick = function() {
@@ -29,14 +31,20 @@ stopBtn.onclick = function() {
 
 function startRecorder() {
     /* First we create our recorder */
-    recorder = new MediaRecorder(stream);
+    recorder = new MediaRecorder(stream, { "mimeType": "audio/webm" });
     recorder.ondataavailable = function(_eve) {
         console.log('data available');
-        // audioFile = new Blob([_eve.data], { type: 'audio/ogg; codecs="vorbis"' });
-        // console.log('Data:', audioFile);
-        // audioElement.src = window.URL.createObjectURL(audioFile);
-        audioElement.src = window.URL.createObjectURL(_eve.data);
+        /* Convert to ogg */
+        audioFile = new Blob([_eve.data], { type: 'audio/ogg; codecs="vorbis"' });
+        console.log('Data:', audioFile);
+        audioLink = window.URL.createObjectURL(audioFile);
+        /* Play the audio */
+        audioElement.src = audioLink;
         audioElement.play();
+
+        /* Set download link */
+        downloadElement.href = audioLink;
+        downloadElement.innerHTML = "Click to Download";
     };
     recorder.start();
     state.innerHTML = "Recording!";
